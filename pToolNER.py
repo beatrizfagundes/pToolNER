@@ -388,13 +388,16 @@ class PortugueseToolNER:
 		if useSentenceTokenize == True:
 			sentencesToPredict = self.__sentenceTokenizer(textToPredict)
 		else:
-			sentencesToPredict = [textToPredict]
+			sentencesToPredict = textToPredict.strip().split('\n')
+
+        sentencesToPredict = [
+            Sentence(sent.strip(), use_tokenizer=useTokenizer)
+            for sent in sentencesToPredict if sent and sent != ' '
+        ]
+
+        self.tagger.predict(sentencesToPredict, mini_batch_size=4)
 
 		for sentence in sentencesToPredict:
-			sentence = sentence.strip()
-			sentenceToPred = Sentence(sentence, use_tokenizer=useTokenizer)
-			self.tagger.predict(sentenceToPred)
-
 			sentenceSpans = sentenceToPred.get_spans(label_type='label')
 
 			if maskNamedEntity == True:
