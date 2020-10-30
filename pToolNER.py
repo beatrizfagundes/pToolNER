@@ -115,9 +115,9 @@ class PortugueseToolNER:
 				sentences: list[str] = open(
 					str(inputFilePath), encoding=setEncoding
 				).read().strip().split('\n\n')
-				
+
 				dataset = [line.split('\n') for line in sentences]
-				
+
 				for sentence in dataset:
 					for line in sentence:
 						token = line.split(sepTokenTag)[0]
@@ -134,7 +134,7 @@ class PortugueseToolNER:
 					tokensInSentence, tagsInSentence, tokenAndTagInSentence = [], [], []
 
 				print('A dataset with '+str(len(self.sentencesTokenAndLabels))+' sentences was loaded!')
-				
+
 				return self.sentencesTokens, self.sentencesLabels, self.sentencesTokenAndLabels
 			except:
 				raise Exception('"'+inputFilePath+'" is not a valid file name.')
@@ -210,7 +210,7 @@ class PortugueseToolNER:
 	def filterPlainCorpusByCategory(self, taggedSentence, allPlainLabels, acceptableLabels):
 		filteredPlainSentence = []
 		unAcceptLabels = list(set(allPlainLabels) - set(acceptableLabels))
-		
+
 		for unAcptL in unAcceptLabels:
 			newSentence = re.sub(' +', ' ', taggedSentence.replace(unAcptL, '').strip())
 		filteredPlainSentence.append(newSentence)
@@ -239,7 +239,7 @@ class PortugueseToolNER:
 
 		files = [f for f in os.listdir(rootFolderPath) if f.find(fileExtension) != -1]
 		#self.tagger = SequenceTagger.load(nerTrainedModelPath)
-		
+
 		for file in files:
 			sentencesToPredict = self.loadCorpusInPlainFormat(rootFolderPath+'/'+file)
 			_auxTaggedPlainSentence = []
@@ -258,7 +258,7 @@ class PortugueseToolNER:
 					except:
 						raise Exception('You need set up these paramters: \
 							"sepTokenTag", "entitiesToMask" and "specialTokenToMaskNE"')
-					
+
 					_toMaskIDX = self.__getMaskTokensIndex(sentenceSpans, entitiesToMask)
 
 					if kwargs.get('useAuxListNE') == True:
@@ -311,7 +311,7 @@ class PortugueseToolNER:
 						self.generateOutputFile(outputFileName = outputFilePath+'/ptTagged-'+str(file),
 												sentences = self.unMaskedPlainSentences,
 												outputFormat = outFormat)
-				
+
 				if outFormat == 'CoNLL':
 					if maskNamedEntity == True:
 						self.generateOutputFile(outputFileName = outputFilePath+'/ptTagged-'+str(file),
@@ -342,13 +342,9 @@ class PortugueseToolNER:
 				for nGCG in nGramsCountByFile:
 					fileSpansToOut.append(nGCG)
 
-				self.generateOutputFile(outputFileName = outputFilePath+'/NamedEntities-'+str(file),
-											sentences = fileSpansToOut,
-											outputFormat = 'plain')
-
 			self.maskedSentencesToken, self.maskedPlainSentencesToken = [], []
 			self.unMaskedPlainSentences, allNamedEntitiesInFile = [], []
-		
+
 		if createOutputListSpans == True:
 			generalSpansToOut = []
 			generalNEsAndAmount, nGramsCountGeneral, uniqueLabels = self.__getSpans(generalNamedEntities)
@@ -365,10 +361,6 @@ class PortugueseToolNER:
 
 			for nGCG in nGramsCountGeneral:
 				generalSpansToOut.append(nGCG)
-
-			self.generateOutputFile(outputFileName = outputFilePath+'/GeneralNamedEntities.txt',
-											sentences = generalSpansToOut,
-											outputFormat = 'plain')
 
 		return self.taggedFilesDict, self.namedEntitiesByFileDict, self.namedEntitiesDict
 
@@ -392,12 +384,12 @@ class PortugueseToolNER:
 		generalNamedEntities = []
 		maskedTokenAndLabel = []
 		maskedToken = []
-		
+
 		if useSentenceTokenize == True:
 			sentencesToPredict = self.__sentenceTokenizer(textToPredict)
 		else:
 			sentencesToPredict = [textToPredict]
-		
+
 		for sentence in sentencesToPredict:
 			sentence = sentence.strip()
 			sentenceToPred = Sentence(sentence, use_tokenizer=useTokenizer)
@@ -413,7 +405,7 @@ class PortugueseToolNER:
 				except:
 					raise Exception('You need set up these paramters: \
 						"sepTokenTag", "entitiesToMask" and "specialTokenToMaskNE"')
-				
+
 				_toMaskIDX = self.__getMaskTokensIndex(sentenceSpans, entitiesToMask)
 
 				if kwargs.get('useAuxListNE') == True:
@@ -466,7 +458,7 @@ class PortugueseToolNER:
 					self.generateOutputFile(outputFileName = outputFilePath+'/ptTagged-'+str(textId)+'.txt',
 											sentences = self.unMaskedPlainSentences,
 											outputFormat = outFormat)
-			
+
 			if outFormat == 'CoNLL':
 				if maskNamedEntity == True:
 					self.generateOutputFile(outputFileName = outputFilePath+'/ptTagged-'+str(textId)+'.txt',
@@ -497,10 +489,6 @@ class PortugueseToolNER:
 			for nGCG in nGramsCountByFile:
 				fileSpansToOut.append(nGCG)
 
-			self.generateOutputFile(outputFileName = outputFilePath+'/NamedEntities-'+str(textId)+'.txt',
-									sentences = fileSpansToOut,
-									outputFormat = 'plain')
-	
 		if createOutputListSpans == True:
 			generalSpansToOut = []
 			generalNEsAndAmount, nGramsCountGeneral, uniqueLabels = self.__getSpans(generalNamedEntities)
@@ -518,17 +506,13 @@ class PortugueseToolNER:
 			for nGCG in nGramsCountGeneral:
 				generalSpansToOut.append(nGCG)
 
-			self.generateOutputFile(outputFileName = outputFilePath+'/GeneralNamedEntities.txt',
-									sentences = generalSpansToOut,
-									outputFormat = 'plain')
-		
 		return textId, self.maskedSentencesToken, self.taggedFilesDict, self.namedEntitiesByFileDict, self.namedEntitiesDict
 
 	def generateOutputFile(self,
 						   outputFileName,
 						   sentences,
 						   outputFormat):
-		
+
 		outputFile = open(outputFileName, 'w+', encoding='utf8')
 
 		if outputFormat == 'CoNLL' or outputFormat == 'conll':
@@ -537,7 +521,7 @@ class PortugueseToolNER:
 					outputFile.write(tokenTag+'\n')
 				outputFile.write('\n')
 			outputFile.close()
-		
+
 		if outputFormat == 'Plain' or outputFormat == 'plain':
 			for sentence in sentences:
 				outputFile.write(sentence+'\n')
